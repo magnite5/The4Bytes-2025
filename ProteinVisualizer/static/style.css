@@ -5,9 +5,17 @@
     font-style: normal;
 }
 
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
 body {
     font-family: 'JetBrains Mono', monospace;
     color: #FFFFFF;
+    background-color: #04011C;
 
     background-image: url("/static/images/background.jpg");
     background-repeat: no-repeat;
@@ -17,11 +25,11 @@ body {
 
 .main-container {
     margin: 50px auto;
+    padding: 20px;
     max-width: 90%;
+    background-color: #25203dab;
     border: 10px solid #0c023a;
     border-radius: 8px;
-    padding: 20px;
-    background-color: #25203dab;
 }
 
 .model-viewer {
@@ -29,8 +37,8 @@ body {
     margin: 20px;
     border: 5px solid #0c023a;
     border-radius: 8px;
-    max-width: 90%;           /* optional: shrink if screen is narrow */
-    width: fit-content;       /* shrink to fit content */
+    max-width: 90%;
+    width: fit-content;
 }
 
 .table {
