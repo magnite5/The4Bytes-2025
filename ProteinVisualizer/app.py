@@ -204,7 +204,7 @@ def view_pdb():
     view.addStyle({'resi': list(range(51, 100))}, {'cartoon': {'color': '#E25822'}})
     view.addStyle({'resi': list(range(101, 150))}, {'cartoon': {'color': "#FF0000"}})
 
-    view.setBackgroundColor("#1E0064")
+    view.setBackgroundColor("rgba(71, 23, 120, 0)")  # 50% transparent
     view.zoomTo()
     viewer_html = view._make_html()
     

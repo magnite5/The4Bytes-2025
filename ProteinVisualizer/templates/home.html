@@ -3,11 +3,12 @@
 <body>
     <div class="main-container">
         <h2>Protein 3D Viewer & Sequence Analyzer</h2>
-        <form action="/view">
-            <label>Enter PDB ID:</label>
-            <input type="text" name="pdb_id" placeholder="e.g. 1A3N" required>
-            <button type="submit">Analyze</button>
-        </form>
+        <form action="/view" class="d-flex align-items-center">
+        <label class="me-2 mb-0">Analyze a Protein</label>
+        <input class="form-control me-2 pdb_input" type="search" name="pdb_id" placeholder="PDB ID" required>
+        <button class="btn btn-outline-light" type="submit">Search</button>
+</form>
+
     </div>
 </body>
 {% endblock %}

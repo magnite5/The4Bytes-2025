@@ -24,6 +24,14 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav_item"><a class="nav-link" href="/">Home</a></li>
                 </ul>
+
+                {% if request.path == '/view' %}
+                <form class="d-flex" action="/view" method="get">
+                    <input class="form-control me-2" type="search" name="pdb_id" placeholder="Enter PDB ID" aria-label="Search" required>
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+                {% endif %}
+
             </div>
         </div>
     </nav>
