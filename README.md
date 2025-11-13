@@ -24,7 +24,7 @@ source venv/bin/activate.(zsh/bash/fish/bat)
 ## Install Dependencies
 ```
 pip install --upgarde pip
-pip install requests ipynb ipython pandas py3dmodel biopython
+pip install flask pandas py3dmodel biopython
 ```
 # Protein Structure Viewer & Analysis
 ## Overview
