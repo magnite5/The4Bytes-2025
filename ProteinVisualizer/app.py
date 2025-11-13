@@ -7,7 +7,7 @@ import py3Dmol
 import pandas as pd
 import requests
 
-from analysis_utils import AnalysisUtils
+from ProteinVisualizer.utils.analysis_utils import AnalysisUtils
 
 app = Flask(__name__)
 
