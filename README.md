@@ -11,8 +11,15 @@ python3 -m venv venv
 ```
 
 Set up Virtual Environment (Windows)
-```./venv/Scripts/activate```
+```
+./venv/Scripts/activate
+```
+
+
 Set up Virtual Environment (Linux / Mac)
+```
+source venv/bin/activate.(zsh/bash/fish/bat)
+```
 
 ## Install Dependencies
 ```
