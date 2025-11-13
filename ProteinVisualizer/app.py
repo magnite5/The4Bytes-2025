@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template
 from Bio.PDB import PDBList, PDBParser
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 from Bio.SeqUtils import seq1
@@ -11,13 +11,16 @@ app = Flask(__name__)
 # ========== Helper functions ==========
 
 def download_pdb(pdb_id, out_dir='pdb_files'):
+    """Download a PDB file by ID."""
     pdb_id = pdb_id.lower()
     os.makedirs(out_dir, exist_ok=True)
     pdbl = PDBList()
     filepath = pdbl.retrieve_pdb_file(pdb_id, pdir=out_dir, file_format='pdb')
     return filepath
 
+
 def parse_pdb_sequences(pdb_path):
+    """Parse amino acid sequences from PDB file."""
     parser = PDBParser(QUIET=True)
     structure = parser.get_structure('structure', pdb_path)
     sequences = {}
@@ -40,7 +43,9 @@ def parse_pdb_sequences(pdb_path):
         break  # use first model only
     return sequences
 
+
 def analyze_sequence(seq):
+    """Analyze a protein sequence and return basic statistics."""
     pa = ProteinAnalysis(seq)
     return {
         'length': len(seq),
@@ -54,17 +59,13 @@ def analyze_sequence(seq):
 
 @app.route('/')
 def home():
-    return '''
-        <h2>Protein 3D Viewer & Sequence Analyzer</h2>
-        <form action="/view">
-            <label>Enter PDB ID:</label>
-            <input type="text" name="pdb_id" placeholder="e.g. 1A3N" required>
-            <button type="submit">Analyze</button>
-        </form>
-    '''
+    """Render home page with PDB ID input form."""
+    return render_template('home.html')
+
 
 @app.route('/view')
 def view_pdb():
+    """Render analysis and 3D structure page for given PDB ID."""
     pdb_id = request.args.get('pdb_id')
     if not pdb_id:
         return "No PDB ID provided."
@@ -74,7 +75,6 @@ def view_pdb():
     except Exception as e:
         return f"Error downloading PDB file: {e}"
 
-    # Parse amino acid sequences
     seqs = parse_pdb_sequences(pdb_path)
 
     if not seqs:
@@ -85,14 +85,15 @@ def view_pdb():
     for chain_id, seq in seqs.items():
         try:
             analysis = analyze_sequence(seq)
-            row = {'Chain': chain_id, **analysis}
-            results.append(row)
+            results.append({'Chain': chain_id, **analysis})
         except Exception as e:
             print(f"Error analyzing chain {chain_id}: {e}")
 
+    # Build data table
     df = pd.DataFrame(results)
+    table_html = df.to_html(index=False, classes='table table-striped', border=0)
 
-    # Generate 3Dmol HTML
+    # Generate 3Dmol HTML viewer
     with open(pdb_path, 'r') as fh:
         pdb_text = fh.read()
 
@@ -103,45 +104,14 @@ def view_pdb():
     view.zoomTo()
     viewer_html = view._make_html()
 
-    # Build HTML page
-    table_html = df.to_html(index=False, classes='table table-striped', border=0)
+    return render_template(
+        'view.html',
+        pdb_id=pdb_id,
+        viewer_html=viewer_html,
+        table_html=table_html
+    )
 
-    html = f"""
-    <html>
-    <head>
-        <title>{pdb_id.upper()} Viewer</title>
-        <style>
-            body {{
-                font-family: Arial, sans-serif;
-                background-color: #fafafa;
-                padding: 20px;
-            }}
-            .table {{
-                border-collapse: collapse;
-                margin-top: 20px;
-            }}
-            th, td {{
-                border: 1px solid #ccc;
-                padding: 8px 12px;
-                text-align: center;
-            }}
-            th {{
-                background-color: #f2f2f2;
-            }}
-        </style>
-    </head>
-    <body>
-        <h1>Protein Structure: {pdb_id.upper()}</h1>
-        {viewer_html}
-        <h2>Sequence Analysis</h2>
-        {table_html}
-        <br><a href="/">← Back</a>
-    </body>
-    </html>
-    """
 
-    return render_template_string(html)
-
-# ========== Run Flask app ==========
+#  Run Flask
 if __name__ == '__main__':
     app.run(debug=True)

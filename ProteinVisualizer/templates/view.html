@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ pdb_id.upper() }} Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Protein Structure: {{ pdb_id.upper() }}</h1>
+
+    <!-- 3D viewer -->
+    {{ viewer_html | safe }}
+
+    <h2>Sequence Analysis</h2>
+    {{ table_html | safe }}
+
+    <br>
+    <a href="/">← Back</a>
+</body>
+</html>
