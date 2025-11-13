@@ -1,30 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ pdb_id.upper() }} Viewer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="main-container">
-        <!-- Info Text -->
-        <h1>Protein Structure: {{ pdb_id.upper() }}</h1>
-        <p>{{ description }}</p>
-        
-        <!-- 3D viewer -->
-        <div class="model-viewer">
-            {{ viewer_html | safe }}
-        </div>
+{% extends "base.html" %}
+{% block content %}
 
-        <!-- Sequence analysis table -->
-        <h2>Sequence Analysis</h2>
-        <div class="table">
-            {{ table_html | safe }}
-        </div>
-        <p>{{ cumulatif_sentence }}</p>
-        <br>
-        <a href="/" class="back">← Search for Another Protein</a>
+<div class="main-container">
+    <h1>Protein Viewer</h1>
+    <h3>Selected Protein Structure: {{ pdb_id.upper() }}</h3>
+    <p>{{ description }}</p>
+    
+    <div class="model-viewer">
+        {{ viewer_html | safe }}
     </div>
-</body>
-</html>
+
+    <h2>Sequence Analysis</h2>
+    <div class="table">
+        {{ table_html | safe }}
+    </div>
+
+    <p>{{ cumulative_sentence }}</p>
+    <p>{{ cumulative_sentence1 }}</p>
+    <p>{{ cumulative_sentence2 }}</p>
+    <p>{{ cumulative_sentence3 }}</p>
+    <p>{{ cumulative_sentence4 }}</p>
+    <p>{{ cumulative_sentence5 }}</p>
+    <p>{{ cumulative_sentence6 }}</p>
+
+    <br>
+
+    <a href="/" class="back">← Search for Another Protein</a>
+
+</div>
+{% endblock %}

@@ -1,12 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protein 3D Viewer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-
+{% extends "base.html" %}
+{% block content %}
 <body>
     <div class="main-container">
         <h2>Protein 3D Viewer & Sequence Analyzer</h2>
@@ -17,4 +10,4 @@
         </form>
     </div>
 </body>
-</html>
+{% endblock %}

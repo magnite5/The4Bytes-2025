@@ -1,26 +1,16 @@
-@font-face {
-    font-family: 'JetBrains Mono';
-    src: url("{{ url_for('static', filename='fonts/JetBrainsMono-Regular.ttf') }}") format('woff2');
-    font-weight: normal;
-    font-style: normal;
-}
-
 html, body {
     margin: 0;
     padding: 0;
     height: 100%;
     width: 100%;
-}
+    font-family: 'Inter', sans-serif;
+    color: #e5e5e5 !important;
 
-body {
-    font-family: 'JetBrains Mono', monospace;
-    color: #FFFFFF;
     background-color: #04011C;
-
     background-image: url("/static/images/background.jpg");
-    background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
 }
 
 .main-container {
@@ -41,20 +31,26 @@ body {
     width: fit-content;
 }
 
-.table {
+div.table table {
+    width: 100%;
     border-collapse: collapse;
-    margin: 10px;        /* centers table */
-    background-color: #0c023a;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-
-    display: table;           /* ensures proper table layout */
-    table-layout: auto;       /* columns adjust to content width */
-    width: fit-content;       /* shrink to fit content */
-    max-width: 90%;           /* optional max width */
     color: #fff;
+    background-color: #0c023a;
 }
+
+div.table table th,
+div.table table td {
+    color: #fff;
+    background-color: #0c023a;
+    border: 1px solid #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+div.table table th {
+    text-transform: uppercase;
+}
+
 
 .back {
     color: #ffffff;
