@@ -6,12 +6,15 @@
     <title>Protein 3D Viewer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    <h2>Protein 3D Viewer & Sequence Analyzer</h2>
-    <form action="/view">
-        <label>Enter PDB ID:</label>
-        <input type="text" name="pdb_id" placeholder="e.g. 1A3N" required>
-        <button type="submit">Analyze</button>
-    </form>
+    <div class="main-container">
+        <h2>Protein 3D Viewer & Sequence Analyzer</h2>
+        <form action="/view">
+            <label>Enter PDB ID:</label>
+            <input type="text" name="pdb_id" placeholder="e.g. 1A3N" required>
+            <button type="submit">Analyze</button>
+        </form>
+    </div>
 </body>
 </html>

@@ -1,0 +1,53 @@
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url("{{ url_for('static', filename='fonts/JetBrainsMono-Regular.ttf') }}") format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'JetBrains Mono', monospace;
+    color: #FFFFFF;
+
+    background-image: url("/static/images/background.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.main-container {
+    margin: 50px auto;
+    max-width: 90%;
+    border: 10px solid #0c023a;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #25203dab;
+}
+
+.model-viewer {
+    overflow: hidden;
+    margin: 20px;
+    border: 5px solid #0c023a;
+    border-radius: 8px;
+    max-width: 90%;           /* optional: shrink if screen is narrow */
+    width: fit-content;       /* shrink to fit content */
+}
+
+.table {
+    border-collapse: collapse;
+    margin: 10px;        /* centers table */
+    background-color: #0c023a;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+    display: table;           /* ensures proper table layout */
+    table-layout: auto;       /* columns adjust to content width */
+    width: fit-content;       /* shrink to fit content */
+    max-width: 90%;           /* optional max width */
+    color: #fff;
+}
+
+.back {
+    color: #ffffff;
+}

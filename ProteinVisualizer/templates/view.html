@@ -7,15 +7,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Protein Structure: {{ pdb_id.upper() }}</h1>
+    <div class="main-container">
+        <!-- Info Text -->
+        <h1>Protein Structure: {{ pdb_id.upper() }}</h1>
+        <p>{{ description }}</p>
+        
+        <!-- 3D viewer -->
+        <div class="model-viewer">
+            {{ viewer_html | safe }}
+        </div>
 
-    <!-- 3D viewer -->
-    {{ viewer_html | safe }}
-
-    <h2>Sequence Analysis</h2>
-    {{ table_html | safe }}
-
-    <br>
-    <a href="/">← Back</a>
+        <!-- Sequence analysis table -->
+        <h2>Sequence Analysis</h2>
+        <div class="table">
+            {{ table_html | safe }}
+        </div>
+        <br>
+        <a href="/" class="back">← Search for Another Protein</a>
+    </div>
 </body>
 </html>
