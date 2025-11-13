@@ -1,107 +1,147 @@
 import os
-import requests
+from flask import Flask, request, render_template_string
 from Bio.PDB import PDBList, PDBParser
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
+from Bio.SeqUtils import seq1
 import py3Dmol
 import pandas as pd
 
-### FOR LOCAL TESTING, USE main.ipynb FILE, SEE README ###
+app = Flask(__name__)
 
-# Helper function to download PDB file
+# ========== Helper functions ==========
+
 def download_pdb(pdb_id, out_dir='pdb_files'):
-    pdb_id = pdb_id.lower()  # convert to lowercase as PDB IDs are case insensitive
+    pdb_id = pdb_id.lower()
     os.makedirs(out_dir, exist_ok=True)
     pdbl = PDBList()
-    # Retrieve and download PDB file
     filepath = pdbl.retrieve_pdb_file(pdb_id, pdir=out_dir, file_format='pdb')
     return filepath
 
-# Helper function to parse the PDB file and extract amino acid sequences
 def parse_pdb_sequences(pdb_path):
     parser = PDBParser(QUIET=True)
     structure = parser.get_structure('structure', pdb_path)
-    print(structure)
     sequences = {}
 
     for model in structure:
         for chain in model:
             seq_chars = []
             for residue in chain:
-                # Only process standard amino acids (skip 'X' or unknown residues)
-                #if residue.get_id()[0] == ' ':  # ' ' indicates standard residue
-                    #try:
-                aa = residue.get_resname()
-                        # Convert three-letter code to one-letter code using Biopython's helper function
-                from Bio.SeqUtils import seq1
-                aa1 = seq1(aa)
-                if aa1 == 'X':
+                # Skip heteroatoms or water
+                if residue.id[0] != " ":
                     continue
-                   # except Exception:
-                        #continue  # Skip unknown residues
-                #print(aa)
-                seq_chars.append(aa1)
-            if seq_chars:  # Only add non-empty sequences
+                try:
+                    aa1 = seq1(residue.get_resname())
+                    if aa1 != "X":
+                        seq_chars.append(aa1)
+                except Exception:
+                    continue
+            if seq_chars:
                 sequences[chain.get_id()] = ''.join(seq_chars)
-        break  # Usually only need the first model
+        break  # use first model only
     return sequences
 
-# Helper function to compute basic sequence properties
 def analyze_sequence(seq):
-    #print(seq)
     pa = ProteinAnalysis(seq)
     return {
         'length': len(seq),
-        'molecular_weight': pa.molecular_weight(),
-        'aromaticity': pa.aromaticity(),
-        'instability_index': pa.instability_index(),
-        'isoelectric_point': pa.isoelectric_point(),
-        'aa_composition': pa.get_amino_acids_percent()
+        'molecular_weight': round(pa.molecular_weight(), 2),
+        'aromaticity': round(pa.aromaticity(), 4),
+        'instability_index': round(pa.instability_index(), 2),
+        'pI': round(pa.isoelectric_point(), 2)
     }
 
-# Download PDB file for Hemoglobin (ID: 1A3N)
-PDB_ID = "2ZFO"  # Human Hemoglobin Alpha Chain
-pdb_path = download_pdb(PDB_ID, out_dir='pdb_files')
-print("Downloaded PDB file to:", pdb_path)
+# ========== Flask routes ==========
 
-# Parse the sequences from the downloaded PDB file
-seqs = parse_pdb_sequences(pdb_path)
-print(seqs)
-print("Chains and sequences found:", list(seqs.keys()))
+@app.route('/')
+def home():
+    return '''
+        <h2>Protein 3D Viewer & Sequence Analyzer</h2>
+        <form action="/view">
+            <label>Enter PDB ID:</label>
+            <input type="text" name="pdb_id" placeholder="e.g. 1A3N" required>
+            <button type="submit">Analyze</button>
+        </form>
+    '''
 
-# Analyze each sequence (for all chains found)
-results = []
-for chain_id, seq in seqs.items():
-    if len(seq) == 0:
-        print(f"Chain {chain_id} is empty, skipping...")
-        continue  # Skip empty chains
+@app.route('/view')
+def view_pdb():
+    pdb_id = request.args.get('pdb_id')
+    if not pdb_id:
+        return "No PDB ID provided."
 
-    # Perform sequence analysis only if the sequence is non-empty
     try:
-        analysis = analyze_sequence(seq)
-        row = {
-            'chain': chain_id,
-            'length': analysis['length'],
-            'molecular_weight': round(analysis['molecular_weight'], 2),
-            'aromaticity': round(analysis['aromaticity'], 4),
-            'instability_index': round(analysis['instability_index'], 2),
-            'pI': round(analysis['isoelectric_point'], 2)
-        }
-        results.append(row)
-        print(f"Chain {chain_id}: length {row['length']}, MW {row['molecular_weight']}, pI {row['pI']}")
+        pdb_path = download_pdb(pdb_id)
     except Exception as e:
-        print(f"Error analyzing chain {chain_id}: {e}")
+        return f"Error downloading PDB file: {e}"
 
-# Create a DataFrame to summarize the results
-df = pd.DataFrame(results)
-df
+    # Parse amino acid sequences
+    seqs = parse_pdb_sequences(pdb_path)
 
-# 3D visualization of the Hemoglobin protein (you can zoom in/out interactively)
-with open(pdb_path, 'r') as fh:
-    pdb_text = fh.read()
+    if not seqs:
+        return f"No valid sequences found in {pdb_id}."
 
-view = py3Dmol.view(width=800, height=500)
-view.addModel(pdb_text, 'pdb')
-view.setStyle({'cartoon': {'color':'spectrum'}})   # Display in cartoon style (color-coded by structure)
-view.setBackgroundColor('0xeeeeee')  # Light gray background
-view.zoomTo()  # Auto zoom to fit the structure
-view.show()
+    # Analyze each chain
+    results = []
+    for chain_id, seq in seqs.items():
+        try:
+            analysis = analyze_sequence(seq)
+            row = {'Chain': chain_id, **analysis}
+            results.append(row)
+        except Exception as e:
+            print(f"Error analyzing chain {chain_id}: {e}")
+
+    df = pd.DataFrame(results)
+
+    # Generate 3Dmol HTML
+    with open(pdb_path, 'r') as fh:
+        pdb_text = fh.read()
+
+    view = py3Dmol.view(width=800, height=500)
+    view.addModel(pdb_text, 'pdb')
+    view.setStyle({'cartoon': {'color': 'spectrum'}})
+    view.setBackgroundColor('0xeeeeee')
+    view.zoomTo()
+    viewer_html = view._make_html()
+
+    # Build HTML page
+    table_html = df.to_html(index=False, classes='table table-striped', border=0)
+
+    html = f"""
+    <html>
+    <head>
+        <title>{pdb_id.upper()} Viewer</title>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #fafafa;
+                padding: 20px;
+            }}
+            .table {{
+                border-collapse: collapse;
+                margin-top: 20px;
+            }}
+            th, td {{
+                border: 1px solid #ccc;
+                padding: 8px 12px;
+                text-align: center;
+            }}
+            th {{
+                background-color: #f2f2f2;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>Protein Structure: {pdb_id.upper()}</h1>
+        {viewer_html}
+        <h2>Sequence Analysis</h2>
+        {table_html}
+        <br><a href="/">← Back</a>
+    </body>
+    </html>
+    """
+
+    return render_template_string(html)
+
+# ========== Run Flask app ==========
+if __name__ == '__main__':
+    app.run(debug=True)
