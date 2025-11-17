@@ -77,8 +77,6 @@ def home():
     """Render home page with PDB ID input form."""
     return render_template('home.html')
 
-@app.route('/test_view')
-
 @app.route('/view')
 def view_pdb():
     """Render analysis and 3D structure page for given PDB ID."""
